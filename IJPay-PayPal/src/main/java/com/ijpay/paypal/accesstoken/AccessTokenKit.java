@@ -85,12 +85,9 @@ public class AccessTokenKit {
 
 		PayPalApiConfig apiConfig = PayPalApiConfigKit.getApiConfig(clientId);
 
-		AccessToken result = RetryUtils.retryOnException(3, new Callable<AccessToken>() {
-			@Override
-			public AccessToken call() {
-				IJPayHttpResponse response = PayPalApi.getToken(apiConfig);
-				return new AccessToken(response.getBody(), response.getStatus());
-			}
+		AccessToken result = RetryUtils.retryOnException(3, () -> {
+			IJPayHttpResponse response = PayPalApi.getToken(apiConfig);
+			return new AccessToken(response.getBody(), response.getStatus());
 		});
 
 		// 三次请求如果仍然返回了不可用的 AccessToken 仍然 put 进去，便于上层通过 AccessToken 中的属性判断底层的情况
